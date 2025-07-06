@@ -29,7 +29,7 @@ Una API moderna y minimalista para gestionar enlaces personalizados, tipo Linktr
 
 ```bash
 git clone https://github.com/eliudjosue/biolink-api-fastapi
-cd linkhub-api
+cd BIOLINK
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
