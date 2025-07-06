@@ -16,7 +16,7 @@ def register(form_data: OAuth2PasswordRequestForm = Depends()):
 
         user = User(
             username=form_data.username,
-            email=form_data.username,  # opcional, podés separar email si querés
+            email=form_data.username,  
             hashed_password=hash_password(form_data.password)
         )
         session.add(user)

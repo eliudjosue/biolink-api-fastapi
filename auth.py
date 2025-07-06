@@ -9,7 +9,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 # 🔐 Clave secreta y algoritmo
-SECRET_KEY = "mi_super_secreta_clave"  # ¡usá algo más seguro en producción!
+SECRET_KEY = "mi_super_secreta_clave"  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
