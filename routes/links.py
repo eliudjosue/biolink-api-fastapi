@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
 from database import engine
 from models.models import User, Link
 from typing import List
+from auth import get_current_user
 
 router = APIRouter()
 
@@ -24,7 +25,8 @@ def get_links(username: str):
         return links
 
 @router.post("/links/", response_model=Link)
-def create_link(link: Link):
+def create_link(link: Link, current_user: User = Depends(get_current_user)):
+    link.user_id = current_user.id
     with Session(engine) as session:
         session.add(link)
         session.commit()
@@ -32,11 +34,13 @@ def create_link(link: Link):
         return link
 
 @router.put("/links/{link_id}", response_model=Link)
-def update_link(link_id: int, new_data: Link):
+def update_link(link_id: int, new_data: Link, current_user: User = Depends(get_current_user)):
     with Session(engine) as session:
         link = session.get(Link, link_id)
         if not link:
             raise HTTPException(status_code=404, detail="Link no encontrado")
+        if link.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="No tienes permiso para modificar este link")
 
         link.title = new_data.title
         link.url = new_data.url
@@ -46,11 +50,13 @@ def update_link(link_id: int, new_data: Link):
         return link
 
 @router.delete("/links/{link_id}")
-def delete_link(link_id: int):
+def delete_link(link_id: int, current_user: User = Depends(get_current_user)):
     with Session(engine) as session:
         link = session.get(Link, link_id)
         if not link:
             raise HTTPException(status_code=404, detail="Link no encontrado")
+        if link.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="No tienes permiso para eliminar este link")
         session.delete(link)
         session.commit()
         return {"message": "Link eliminado"}
