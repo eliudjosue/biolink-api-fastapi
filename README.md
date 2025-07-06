@@ -28,7 +28,7 @@ Una API moderna y minimalista para gestionar enlaces personalizados, tipo Linktr
 ## 📦 Instalación local
 
 ```bash
-git clone https://github.com/tu-usuario/linkhub-api.git
+git clone https://github.com/eliudjosue/biolink-api-fastapi
 cd linkhub-api
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
