@@ -42,12 +42,17 @@ def update_link(link_id: int, new_data: Link, current_user: User = Depends(get_c
         if link.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="No tienes permiso para modificar este link")
 
-        link.title = new_data.title
-        link.url = new_data.url
-        link.order = new_data.order
+        if new_data.title is not None:
+            link.title = new_data.title
+        if new_data.url is not None:
+            link.url = new_data.url
+        if new_data.order is not None:
+            link.order = new_data.order
+
         session.commit()
         session.refresh(link)
         return link
+
 
 @router.delete("/links/{link_id}")
 def delete_link(link_id: int, current_user: User = Depends(get_current_user)):
