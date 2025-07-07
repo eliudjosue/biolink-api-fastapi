@@ -7,6 +7,10 @@ from auth import get_current_user
 
 router = APIRouter()
 
+@router.get("/")
+async def root():
+    return {"message": "Hello word!"}
+
 @router.post("/users/", response_model=User)
 def create_user(user: User):
     with Session(engine) as session:
