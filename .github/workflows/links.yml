@@ -23,7 +23,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest  # asegurate de tener tests, o comentá esta línea al principio
+          pytest
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -38,15 +38,19 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
+      - name: Set image tag
+        id: vars
+        run: echo "tag=$(echo $GITHUB_SHA | cut -c1-8)" >> $GITHUB_OUTPUT
+
       - name: Build and Push Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:latest .
-          docker push us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:latest
+          docker build -t us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:${{ steps.vars.outputs.tag }} .
+          docker push us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:${{ steps.vars.outputs.tag }}
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy biolink-api \
-            --image us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:latest \
+            --image us-central1-docker.pkg.dev/visionary-464813/biolink-repo/biolink-api:${{ steps.vars.outputs.tag }} \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
