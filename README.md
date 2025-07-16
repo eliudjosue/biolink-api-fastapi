@@ -63,7 +63,7 @@ El login devuelve un token `access_token` que debe usarse como `Bearer Token` en
 Puedes usar [Thunder Client](https://www.thunderclient.com/) en VS Code o Swagger UI en:
 
 ```
-http://localhost:8000/docs
+https://biolink-api-835852425105.us-central1.run.app/docs
 ```
 
 ---
