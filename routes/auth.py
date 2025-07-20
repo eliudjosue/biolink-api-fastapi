@@ -17,7 +17,7 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     
-@auth_router.post("/register")
+@auth_router.post("/register", tags=["Auth"])
 def register(form_data: RegisterRequest):
     with Session(engine) as session:
         user_exist = get_user_by_username(form_data.username)
@@ -34,7 +34,7 @@ def register(form_data: RegisterRequest):
         session.refresh(user)
         return {"message": "Usuario creado"}
 
-@auth_router.post("/login")
+@auth_router.post("/login", tags=["Auth"])
 def login(form_data: LoginRequest):
     user = get_user_by_username(form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):

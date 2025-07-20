@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
 from database import engine
-from models.models import User, Link
+from models.models import User, Link, LinkOrderUpdate
 from typing import List
 from auth import get_current_user
 
@@ -11,7 +11,7 @@ router = APIRouter()
 async def root():
     return {"message": "Hello word!"}
 
-@router.post("/users/", response_model=User)
+@router.post("/users/", response_model=User, tags=["Usuarios"])
 def create_user(user: User):
     with Session(engine) as session:
         session.add(user)
@@ -19,7 +19,7 @@ def create_user(user: User):
         session.refresh(user)
         return user
 
-@router.get("/users/{username}/links", response_model=List[Link])
+@router.get("/users/{username}/links", response_model=List[Link], tags=["Usuarios"])
 def get_links(username: str):
     with Session(engine) as session:
         user = session.exec(select(User).where(User.username == username)).first()
@@ -28,7 +28,7 @@ def get_links(username: str):
         links = session.exec(select(Link).where(Link.user_id == user.id).order_by(Link.order)).all()
         return links
 
-@router.post("/links/", response_model=Link)
+@router.post("/links/", response_model=Link, tags=["Links"])
 def create_link(link: Link, current_user: User = Depends(get_current_user)):
     link.user_id = current_user.id
     with Session(engine) as session:
@@ -37,7 +37,7 @@ def create_link(link: Link, current_user: User = Depends(get_current_user)):
         session.refresh(link)
         return link
 
-@router.put("/links/{link_id}", response_model=Link)
+@router.put("/links/{link_id}", response_model=Link, tags=["Links"])
 def update_link(link_id: int, new_data: Link, current_user: User = Depends(get_current_user)):
     with Session(engine) as session:
         link = session.get(Link, link_id)
@@ -58,7 +58,7 @@ def update_link(link_id: int, new_data: Link, current_user: User = Depends(get_c
         return link
 
 
-@router.delete("/links/{link_id}")
+@router.delete("/links/{link_id}", tags=["Links"])
 def delete_link(link_id: int, current_user: User = Depends(get_current_user)):
     with Session(engine) as session:
         link = session.get(Link, link_id)
@@ -69,8 +69,25 @@ def delete_link(link_id: int, current_user: User = Depends(get_current_user)):
         session.delete(link)
         session.commit()
         return {"message": "Link eliminado"}
+    
+@router.put("/links/bulk/reorder", tags=["Links"])
+def reorder_links(
+    new_order: List[LinkOrderUpdate],
+    current_user: User = Depends(get_current_user)
+):
+    with Session(engine) as session:
+        for item in new_order:
+            link = session.get(Link, item.id)
+            if not link:
+                raise HTTPException(status_code=404, detail=f"Link con id {item.id} no encontrado")
+            if link.user_id != current_user.id:
+                raise HTTPException(status_code=403, detail="No tienes permiso para modificar este link")
 
-@router.post("/links/{link_id}/click")
+            link.order = item.order
+        session.commit()
+    return {"message": "Orden actualizado correctamente"}
+
+@router.post("/links/{link_id}/click", tags=["Links"])
 def count_click(link_id: int):
     with Session(engine) as session:
         link = session.get(Link, link_id)
@@ -79,3 +96,5 @@ def count_click(link_id: int):
         link.click_count += 1
         session.commit()
         return {"message": "Click contado"}
+
+
