@@ -8,6 +8,7 @@ Una API moderna y minimalista para gestionar enlaces personalizados, tipo Linktr
 
 - Registro y login de usuarios con autenticación JWT 🔐
 - Crear, editar y eliminar enlaces personales
+- Reordenar enlaces por drag-and-drop (orden persistente)
 - Página pública de enlaces: `/users/{username}/links`
 - Contador de clics por enlace
 - API documentada con Swagger en `/docs`
@@ -40,15 +41,16 @@ uvicorn main:app --reload
 
 ## 📖 Endpoints principales
 
-| Método | Ruta                             | Protegido | Descripción                            |
-|--------|----------------------------------|-----------|----------------------------------------|
-| POST   | `/register`                      | ❌        | Registro de usuario                    |
-| POST   | `/login`                         | ❌        | Login y generación de token            |
-| POST   | `/links/`                        | ✅        | Crear un nuevo link                    |
-| GET    | `/users/{username}/links`        | ❌        | Obtener links públicos de un usuario   |
-| PUT    | `/links/{id}`                    | ✅        | Modificar un link propio               |
-| DELETE | `/links/{id}`                    | ✅        | Eliminar un link propio                |
-| POST   | `/links/{id}/click`              | ❌        | Contar un clic en el enlace            |
+| Método | Ruta                                | Protegido | Descripción                              |
+|--------|-------------------------------------|-----------|------------------------------------------|
+| POST   | `/register`                         | ❌        | Registro de usuario                      |
+| POST   | `/login`                            | ❌        | Login y generación de token              |
+| POST   | `/links/`                           | ✅        | Crear un nuevo link                      |
+| GET    | `/users/{username}/links`           | ❌        | Obtener links públicos de un usuario     |
+| PUT    | `/links/{id}`                       | ✅        | Modificar un link propio                 |
+| DELETE | `/links/{id}`                       | ✅        | Eliminar un link propio                  |
+| PUT    | `/links/bulk/reorder`               | ✅        | Reordenar múltiples links (drag & drop)  |
+| POST   | `/links/{id}/click`                 | ❌        | Contar un clic en el enlace              |
 
 ---
 
@@ -63,7 +65,7 @@ El login devuelve un token `access_token` que debe usarse como `Bearer Token` en
 Puedes usar [Thunder Client](https://www.thunderclient.com/) en VS Code o Swagger UI en:
 
 ```
-https://biolink-api-835852425105.us-central1.run.app/docs
+http://127.0.0.1:8000/docs
 ```
 
 ---
@@ -72,14 +74,13 @@ https://biolink-api-835852425105.us-central1.run.app/docs
 
 ```bash
 # Construir imagen
-docker build -t linkhub-api .
+docker build -t biolink-api .
 
 # Correr localmente
-docker run -d -p 8000:8000 linkhub-api
+docker run -d -p 8000:8000 biolink-api
 ```
 
 ---
-
 
 ## ✍️ Contribuciones
 

@@ -14,3 +14,7 @@ class Link(SQLModel, table=True):
     order: int
     click_count: int = 0
     user_id: int = Field(foreign_key="user.id")
+
+class LinkOrderUpdate(SQLModel):
+    id: int
+    order: int

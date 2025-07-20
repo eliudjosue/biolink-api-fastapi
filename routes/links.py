@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
 from database import engine
-from models.models import User, Link
+from models.models import User, Link, LinkOrderUpdate
 from typing import List
 from auth import get_current_user
 
@@ -69,6 +69,23 @@ def delete_link(link_id: int, current_user: User = Depends(get_current_user)):
         session.delete(link)
         session.commit()
         return {"message": "Link eliminado"}
+    
+@router.put("/links/bulk/reorder")
+def reorder_links(
+    new_order: List[LinkOrderUpdate],
+    current_user: User = Depends(get_current_user)
+):
+    with Session(engine) as session:
+        for item in new_order:
+            link = session.get(Link, item.id)
+            if not link:
+                raise HTTPException(status_code=404, detail=f"Link con id {item.id} no encontrado")
+            if link.user_id != current_user.id:
+                raise HTTPException(status_code=403, detail="No tienes permiso para modificar este link")
+
+            link.order = item.order
+        session.commit()
+    return {"message": "Orden actualizado correctamente"}
 
 @router.post("/links/{link_id}/click")
 def count_click(link_id: int):
@@ -79,3 +96,5 @@ def count_click(link_id: int):
         link.click_count += 1
         session.commit()
         return {"message": "Click contado"}
+
+
